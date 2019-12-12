@@ -14,17 +14,16 @@ cat > env.sh <<EOF
 export PSANA_PREFIX=$PWD/lcls2
 export PATH=\$PSANA_PREFIX/install/bin:${PATH}
 export PYTHONPATH=\$PSANA_PREFIX/install/lib/python3.7/site-packages
-# for procmgr
-export TESTRELDIR=\$PSANA_PREFIX/install
 
 # variables needed for conda
 module load python/3.7-anaconda-2019.07
-conda env list | grep psana2_py37
-if [ $? -eq 0 ] 
-then
-  source /usr/common/software/python/3.7-anaconda-2019.07/etc/profile.d/conda.sh
-  conda activate psana2_py37
+
+if conda env list | grep psana2_py37 ; then
+    source /usr/common/software/python/3.7-anaconda-2019.07/etc/profile.d/conda.sh
+    conda activate psana2_py37
 fi
+
+module load darshan
 EOF
 
 source env.sh
@@ -36,8 +35,7 @@ source env.sh
 
 [[ -e lcls2 ]] && rm -rf lcls2
 
-conda env list | grep psana2_py37
-if [[ $? -eq 0 ]] ; then
+if conda env list | grep psana2_py37 ; then
     source /usr/common/software/python/3.7-anaconda-2019.07/etc/profile.d/conda.sh
     conda activate base
     conda env remove --name psana2_py37
@@ -57,7 +55,7 @@ if [[ ${install_latest} -eq 1 ]] ; then
     git clone https://github.com/slac-lcls/lcls2.git
 else
     psana_ver=1.2.0
-    wget https://github.com/slac-lcls/lcls2/archive/v${psana_ver}.tar.gz
+    [[ -e v${psana_ver}.tar.gz ]] || wget https://github.com/slac-lcls/lcls2/archive/v${psana_ver}.tar.gz
     tar xf v${psana_ver}.tar.gz
     mv lcls2-${psana_ver} lcls2
 fi

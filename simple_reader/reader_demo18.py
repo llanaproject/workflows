@@ -14,13 +14,11 @@ comm = MPI.COMM_WORLD
 size = comm.Get_size()
 rank = comm.Get_rank()
 
-
 xtc_dir = os.path.join(os.getenv('TEST_XTC_DIR'))
-print(xtc_dir)
-
 
 st = MPI.Wtime()
-ds = DataSource(exp='xpptut13', run=1, dir=xtc_dir, batch_size=10, max_events=100)
+nevents = int(sys.argv[1]) if len(sys.argv) > 1 else 100
+ds = DataSource(exp='xpptut13', run=1, dir=xtc_dir, batch_size=10, max_events=nevents)
 
 ds_done_t = MPI.Wtime()
 
@@ -41,7 +39,7 @@ for run in ds.runs():
         sendbuf += 1
         photon_energy = det.raw.photonEnergy(evt)
         raw = det.raw.raw(evt)
-        print("event", evt.timestamp, len(raw), photon_energy, raw.shape)
+        print("event", evt.timestamp, len(raw), photon_energy, raw.shape, rank)
 
 run_done_t = MPI.Wtime()
 
@@ -55,4 +53,6 @@ if rank == 0:
            f'ds(s): {ds_done_t-st:.2f} barrier(s): {barrier_t-ds_done_t:.2f} '
            f'run(s): {run_done_t-barrier_t:.2f} gather(s): {en-run_done_t:.2f} ds_called: {ds_called_ts:.0f}')
     print(recvbuf)
+    print("requested events:", nevents)
+    print("xtc-dir:", xtc_dir)
     
